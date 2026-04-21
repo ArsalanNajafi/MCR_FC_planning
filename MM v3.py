@@ -133,7 +133,7 @@ plt.title('Departure Time Distributions')
 
 plt.tight_layout()
 plt.savefig('All_Parkings_KDE.png', dpi=300)
-plt.show()
+plt.show(block=False)
 
 # Initialize the plot
 plt.figure(figsize=(12, 8))
@@ -197,7 +197,7 @@ plt.title('Departure Time Distributions (Frequency Scaled)')
 
 plt.tight_layout()
 plt.savefig('All_Parkings_Frequency_Curves.png', dpi=300)
-plt.show()
+plt.show(block=False)
 
 
 
@@ -261,7 +261,7 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.tight_layout()
 plt.savefig('Side_by_Side_Histogram.png', dpi=300)
-plt.show()
+plt.show(block=False)
 # Initialize models for each parking
 parking_models = {}
 for s in range(1, ParkNo+1):
@@ -649,7 +649,7 @@ ax.set_ylim(0, max(P_b_EV_sums + P_dch_sums) * 1.25)
 
 plt.tight_layout()
 plt.savefig('Energy_Source_Comparison.png', dpi=300, bbox_inches='tight')
-plt.show()
+plt.show(block=False)
 #########################################
 for s in range(1, ParkNo+1):
     # Check discharge activity using the stored dictionary
@@ -726,7 +726,7 @@ for s in range(1, ParkNo+1):
     plt.tight_layout()
     plt.savefig(f'Robot_Discharge_Parking_{s}.png', dpi=300, bbox_inches='tight')
 # Prepare SOC matrix HEAT MAP
-#plt.show()
+#plt.show(block=False)
 
 
 #soc_df = pd.DataFrame({k: [pyo.value(model.SOC_EV[k, t]) for t in model.T]
@@ -784,7 +784,7 @@ for s in range(1, ParkNo+1):
 
     plt.tight_layout()
     plt.savefig(f'Parking_{s}_Summed_Discharge.png', dpi=300)
-    plt.show()
+    plt.show(block=False)
 
     # Print statistics
     print(f"\nParking {s} Summary:")
@@ -804,7 +804,7 @@ plt.ylabel('Price (SEK/MWh)', fontsize=14)
 plt.tick_params(axis='both', labelsize=14)
 plt.grid(True)
 plt.savefig('InputPrice.png', dpi=600)
-plt.show()
+plt.show(block=False)
 
 
 
@@ -851,7 +851,7 @@ plt.legend(fontsize=10, framealpha=0.9)
 plt.tight_layout()
 plt.savefig('PurchasePower.png', dpi=600, bbox_inches='tight')
  
-plt.show()
+plt.show(block=False)
 
 # Create DataFrames for x and y variables
 # Create dataframes from saved variables
@@ -1065,7 +1065,7 @@ else:
     plt.savefig('Combined_Robot_Utilization_Grid.png', 
                dpi=300, 
                bbox_inches='tight')
-    plt.show()
+    plt.show(block=False)
 
 
 if not valid_parkings:
@@ -1123,7 +1123,7 @@ else:
     plt.savefig('Robot_To_ChargerMap.png', 
                dpi=300, 
                bbox_inches='tight')
-    plt.show() 
+    plt.show(block=False) 
 # Create heatmap for each parking
 
     
@@ -1325,7 +1325,7 @@ for ax in axes:
 
 plt.tight_layout()
 plt.savefig(f'Robot_{robot_id}_P{parking_id}_Updated_Timeline.png', dpi=300, bbox_inches='tight')
-plt.show()
+plt.show(block=False)
 
 # ============================================================================
 # FIGURE 2: Gantt-style activity chart
@@ -1394,7 +1394,7 @@ ax.legend(loc='upper left', fontsize=10)
 
 plt.tight_layout()
 plt.savefig(f'Robot_{robot_id}_P{parking_id}_Gantt_Timeline.png', dpi=300, bbox_inches='tight')
-plt.show()
+plt.show(block=False)
 
 # ============================================================================
 # Print summary table
@@ -1641,4 +1641,4 @@ else:
 
     plt.tight_layout()
     plt.savefig(f'Parking_{parking_id}_Snapshot_Busiest.png', dpi=300, bbox_inches='tight')
-    plt.show()
+    plt.show(block=False)

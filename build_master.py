@@ -58,7 +58,7 @@ def build_masterOnlyFC(s, parking_data, parking_to_bus, SampPerH, Ch_cost, robot
     plt.ylabel('Frequency')
     plt.savefig('Histogram.png', dpi = 300)
     
-    plt.show()
+    plt.show(block=False)
     # -*- coding: utf-8 -*-
     data = pyo.DataPortal()
     data.load(filename='iee33_bus_data.dat')
@@ -483,7 +483,7 @@ def build_masterBESS(s, parking_data, parking_to_bus, SampPerH, Ch_cost, robotCC
     plt.ylabel('Frequency')
     plt.savefig('Histogram.png', dpi = 300)
     
-    plt.show()
+    plt.show(block=False)
     #######################
 
     

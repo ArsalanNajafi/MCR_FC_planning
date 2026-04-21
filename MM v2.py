@@ -376,7 +376,7 @@ ax.set_ylim(0, max(P_b_EV_sums + P_dch_sums) * 1.25)
 
 plt.tight_layout()
 plt.savefig('Energy_Source_Comparison.png', dpi=300, bbox_inches='tight')
-plt.show()
+plt.show(block=False)
 #########################################
 for s in range(1, ParkNo+1):
     # Check discharge activity
@@ -479,7 +479,7 @@ for s in range(1, ParkNo+1):
 
     plt.tight_layout()
     plt.savefig(f'Parking_{s}_Summed_Discharge.png', dpi=300)
-    plt.show()
+    plt.show(block=False)
 
     # Print statistics
     print(f"\nParking {s} Summary:")
@@ -499,7 +499,7 @@ plt.ylabel('Price (SEK/MWh)', fontsize=14)
 plt.tick_params(axis='both', labelsize=14)
 plt.grid(True)
 plt.savefig('InputPrice.png', dpi=600)
-plt.show()
+plt.show(block=False)
 
 
 
@@ -542,7 +542,7 @@ plt.legend(fontsize=10, framealpha=0.9)
 plt.tight_layout()
 plt.savefig('PurchasePower.png', dpi=600, bbox_inches='tight')
  
-plt.show()
+plt.show(block=False)
 
 # Create DataFrames for x and y variables
 # Create dataframes from saved variables
@@ -754,7 +754,7 @@ else:
     plt.savefig('Combined_Robot_Utilization_Grid.png', 
                dpi=300, 
                bbox_inches='tight')
-    plt.show()
+    plt.show(block=False)
 
 
 if not valid_parkings:
@@ -812,7 +812,7 @@ else:
     plt.savefig('Robot_To_ChargerMap.png', 
                dpi=300, 
                bbox_inches='tight')
-    plt.show() 
+    plt.show(block=False) 
 # Create heatmap for each parking
 
     
@@ -1003,7 +1003,7 @@ for ax in axes:
 
 plt.tight_layout()
 plt.savefig(f'Robot_{robot_id}_P{parking_id}_Comprehensive_Timeline.png', dpi=300, bbox_inches='tight')
-plt.show()
+plt.show(block=False)
 
 # ============================================================================
 # FIGURE 2: Gantt-style activity chart (clearer timeline)
@@ -1076,7 +1076,7 @@ ax.legend(loc='upper left', fontsize=10)
 
 plt.tight_layout()
 plt.savefig(f'Robot_{robot_id}_P{parking_id}_Gantt_Timeline.png', dpi=300, bbox_inches='tight')
-plt.show()
+plt.show(block=False)
 
 
 # ============================================================================

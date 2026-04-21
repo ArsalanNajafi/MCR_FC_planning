@@ -243,7 +243,7 @@ plt.legend(fontsize=10, framealpha=0.9)
 plt.tight_layout()
 plt.savefig('PurchasePower.png', dpi=600, bbox_inches='tight')
  
-plt.show()
+plt.show(block=False)
 
 # Create DataFrames for x and y variables
 # Create dataframes from saved variables
@@ -349,7 +349,7 @@ for parking in parkings:
 #############% robot utilization 
 
 
-    plt.show()
+    plt.show(block=False)
 
 ###############################
 ######################### SAVING VARS FOR FUTURE NEEDS #########################

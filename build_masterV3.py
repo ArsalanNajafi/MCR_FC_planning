@@ -91,7 +91,7 @@ def build_master(s, parking_data, parking_to_bus, SampPerH, Ch_cost, robotCC, Pa
     plt.ylabel('Frequency')
     plt.savefig('Histogram.png', dpi = 300)
     
-    plt.show()
+    plt.show(block=False)
     #######################
 
     

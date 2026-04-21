@@ -44,7 +44,7 @@ def build_master(s, parking_data, parking_to_bus, SampPerH, Ch_cost, robotCC, Pa
     plt.subplot(2,1,2)
     plt.hist(DTT, bins=18, color='black', edgecolor='brown', label='Departure time')
     plt.xlim(1,SampPerH*24); plt.grid(); plt.legend(); plt.xlabel('Time sample'); plt.ylabel('Frequency')
-    plt.savefig('Histogram.png', dpi=300); plt.show()
+    plt.savefig('Histogram.png', dpi=300); plt.show(block=False)
 
     PFV_Charger = (1 / 365) * ((IR * (1 + IR) ** NYearCh) / (-1 + (1 + IR) ** NYearCh))
     PFV_Rob = (1 / 365) * ((IR * (1 + IR) ** NYearRob) / (-1 + (1 + IR) ** NYearRob))
