@@ -9,7 +9,7 @@ import networkx as nx
 from PowerFlow import PowerFlow
 from DataCuration import DataCuration
 from MaxOverlap import max_overlaps_per_parking
-from build_master import build_masterOnlyFC
+from build_master_FC import build_masterOnlyFC
 
 from GlobalData import GlobalData
 
@@ -24,30 +24,23 @@ PFV_Rob = (1 / 365) * ((IR * (1 + IR) ** NYearRob) / (-1 + (1 + IR) ** NYearRob)
 
 # Initializing dictionaries for storing variables at the end
 results = {
-    'P_btot': {}, 'P_b_EV': {}, 'P_dch_rob': {}, 'x': {}, 'y': {},
-    'SOC_rob': {}, 'z': {}, 'assign': {}, 'assignRobot': {}, 'u_rob': {},
-    'u_rob_type': {}, 'Ns': {}, 'P_ch_EV': {}, 'P_ch_rob': {}, 'CapRobot': {},
-    'PeakPower': {}, 'Alpha': {}
+    'is_charging': {}, 'Ns': {}, 'P_btot': {}, 'P_b_EV_grid': {}, 'Out1_P_b_EV': {},
+    'P_ch_EV': {}, 'SOC_EV': {}, 'PeakPower': {}, 'Alpha': {}
 }
 
 
-P_btot_Parkings = {}  
-P_b_EVf = {}
-P_dch_robf = {}
-xf = {}
-yf = {}
-SOC_robf = {}
-zf = {}
-assignf = {}
-assignRobotf = {}
-u_robf = {}
-u_rob_typef = {}
+
+is_chargingf = {}  
 Nsf = {}
+P_btotf = {}
+xf = {}
+P_b_EV_gridf = {}
+Out1_P_b_EVf = {}
 P_ch_EVf = {}
-P_ch_robf = {}
-CapRobotf ={}
+SOC_EVf = {}
 PeakPowerf = {}
 Alphaf = {}
+P_btot_Parkings ={}
 # Load data
 current_directory = os.path.dirname(__file__)
 current_directory = os.getcwd()
@@ -109,41 +102,28 @@ while True:
             P_btot_Parkings[(s, t)] = pyo.value(model.P_btot[t])
 
 
-        P_b_EVf.update({
-            (k,i,s,t): pyo.value(model.P_b_EV[k,i,t]) 
-            for (k,i,t) in model.x_indices
-        })
-        
-
-
-
-        xf.update( {
-            (k, i , s, t):  pyo.value(model.x[k, i, t]) 
-            for (k, i, t) in model.x_indices  # Uses predefined sparse indices
-        })
-
-        
-
-       
-        for  i  in model.I:
-            zf[(i,s)] = pyo.value(model.z[i])
-        
-        
         for k in model.K:
-            for i in model.I:
-                assignf[(k,i,s)] = pyo.value(model.assign[k, i])
+            for t in model.T:
+                P_b_EV_gridf[(k,s, t)] = pyo.value(model.P_b_EV_grid[k,t])
+
+
+        for k in model.K:
+            for t in model.T:
+                P_ch_EVf[(k , s, t)] =   pyo.value(model.P_ch_EV[k, t])    
         
+
+        for k in model.K:
+            for t in model.T:
+                SOC_EVf[(k , s, t)] =   pyo.value(model.SOC_EV[k, t])  
+
                        
     
         Nsf[(s)] = pyo.value(model.Ns)
  
-        for k in model.K:
-            for t in model.T:
-                P_ch_EVf[(k , s, t)] =   pyo.value(model.P_ch_EV[k, t])  
      
          
         
-            print(f"Parking {s} Alpha: {pyo.value(model.Alpha):.2f}")
+        print(f"Parking {s} Alpha: {pyo.value(model.Alpha):.2f}")
         PeakPowerf[(s)] = pyo.value(model.PeakPower)
         Alphaf[(s)] = pyo.value(model.Alpha)
 
@@ -281,75 +261,11 @@ print("Total Cost = ", TotalCost)
 ObjectiveFun = (PFV_Charger*TotalChargerCost + (1/SampPerH)*TotalPurchaseCost + TotalPeakCost)
 print("Objective function = ", ObjectiveFun)
 
-
-
-
-# Create and plot charger utilization heatmap
-charger_utilization = df_x.pivot_table(index='Time', 
-                                      columns='Charger', 
-                                      values='Value',
-                                      aggfunc='sum',
-                                      fill_value=0)
-
- 
-
- 
-# Parking-specific charger utilization plots
-parkings = sorted(df_x['Parking'].unique())
-
-for parking in parkings:
-    df_parking = df_x[df_x['Parking'] == parking].copy()
     
-    # Map charger IDs to sequential numbers
-    original_charger_ids = sorted(df_parking['Charger'].unique())
-    charger_id_mapping = {orig_id: new_id + 1 
-                         for new_id, orig_id in enumerate(original_charger_ids)}
-    df_parking['Charger_Sequential'] = df_parking['Charger'].map(charger_id_mapping)
-    
-    charger_utilization = df_parking.pivot_table(
-        index='Time', 
-        columns='Charger_Sequential', 
-        values='Value',
-        aggfunc='sum',
-        fill_value=0
-    )
-    
-    # Skip if no active chargers
-    if charger_utilization.empty:
-        print(f"No active chargers in Parking {parking}. Skipping.")
-        continue
-    
-    # Create complete time index
-    full_index = range(1, model.HORIZON + 1)
-    charger_utilization = charger_utilization.reindex(full_index, fill_value=0)
-    
-    # Plot heatmap
-    plt.figure(figsize=(15, 6))
-    ax = sns.heatmap(
-        charger_utilization.T,
-        cmap=['white', 'green'],
-        linewidths=0.5,
-        linecolor='lightgray',
-        cbar=False
-    )
-    
-    # Set x-axis labels
-    n = max(1, len(full_index) // 10)
-    xticks = [i for i in full_index if i % n == 1 or i == full_index[-1]]
-    ax.set_xticks([x - 1.5 for x in xticks])
-    ax.set_xticklabels(xticks)
-    
-    plt.title(f'Parking {parking} - Charger Utilization', fontsize=14)
-    plt.xlabel('Time Period', fontsize=14)
-    plt.ylabel('Charger ID', fontsize=14)
-    
-    plt.tight_layout()
-    plt.savefig(f'Parking_{parking}_Charger_Utilization.png', dpi=300, bbox_inches='tight')
-     
 #############% robot utilization 
 
 
-    plt.show(block=False)
+plt.show(block=False)
 
 ###############################
 ######################### SAVING VARS FOR FUTURE NEEDS #########################
