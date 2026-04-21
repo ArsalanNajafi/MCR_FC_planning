@@ -15,7 +15,7 @@ def GlobalData():
     ChargerCap = 22 #kW
     SampPerH = 2
     Vmin = 0.9
-    Ch_cost = 4500 #euro
+    Ch_cost = 5500 #euro
 
     nChmax = 1000 #upper limit of number of chargers based on the area limit
 

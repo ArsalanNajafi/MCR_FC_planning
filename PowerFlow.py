@@ -338,7 +338,7 @@ def PowerFlow(ParkingDemand, Pattern, Price):
     plt.xlabel('Node')
     plt.ylabel('Voltage (pu)')
     plt.grid(True)
-    plt.show()
+    plt.show(block=False)
     
     SPobj = pyo.value(model.obj)
 #    return min_voltages, volt_per_node, duals2, duals_balance_p, duals_Dev, SPobj
