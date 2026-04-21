@@ -173,7 +173,10 @@ while True:
 
 # Visualization
 Ncharger_val = {(s): Nsf[s] for s in range(1, ParkNo+1)}
-print(Ncharger_val)
+PeakPowerIncured = {(s): PeakPowerf[s] for s in range(1, ParkNo + 1) }
+print(Ncharger_val, 'Number of chargers')
+print( PeakPowerIncured, "Peak Power (kw) ")
+
 # x_val = {(k,i,t): sum( pyo.value(model.x[k,i,s,t]) for s in model.S) for k in model.K for i in model.I for t in model.T}
 #assign_val = {(k, i): sum(assignf[k, i, s] for s in model.S) for k in model.K for i in model.I}
 

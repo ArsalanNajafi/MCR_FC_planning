@@ -29,7 +29,7 @@ from PowerFlow import PowerFlow
 from DataCuration import DataCuration
 from MaxOverlap import max_overlaps_per_parking
 #from build_master import build_master
-from build_masterV5 import build_master
+from build_master_MCR_FC import build_master
 #from build_masterV5_y_modified import build_master
 
 
@@ -1125,19 +1125,7 @@ else:
                bbox_inches='tight')
     plt.show(block=False) 
 # Create heatmap for each parking
-
-    
-    
-    
-#for j in model.J:
-#    for i in model.I:
-#             if P_ch_robSumT.get((j,i,1),0)>0.1:
-#                print('i',j, i,  P_ch_robSumT.get((j,i,1),0))   
-                
-#for k in model.K:
-#    for j in model.J:
-#             if assignRobotf.get((k,j,0),0) >-0.001:
-#                print('OK')                  
+      
                 
                 
 ###############################
