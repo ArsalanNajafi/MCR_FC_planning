@@ -5,29 +5,13 @@ Created on Wed Apr 15 12:15:05 2026
 @author: arsalann
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Aug 12 11:54:02 2025
-
-@author: arsalann
-"""
-
 import pyomo.environ as pyo
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from PowerFlow import PowerFlow  # Assuming you have this module
-import pyomo.environ as pyo
-import pandas as pd
-import numpy as np
 import os
-import matplotlib.pyplot as plt
 import seaborn as sns
-import networkx as nx
-from PowerFlow import PowerFlow
-from PowerFlow import PowerFlow
-from DataCuration import DataCuration
-from MaxOverlap import max_overlaps_per_parking
 #from build_master import build_master
 from build_master_MCR_FC import build_master
 #from build_masterV5_y_modified import build_master
@@ -282,7 +266,7 @@ while True:
     # Step 1: Solve all parking masters
     P_btot_current = {}
     for s, model in parking_models.items():
-        gapp = 0.06
+        gapp = 0.05
         if s == 2:
             gapp = 0.05
         print(f"\nSolving parking {s} master...")
@@ -382,14 +366,7 @@ while True:
             for t in model.T:
                 P_ch_rob_totalf[(j,s,t)] =   pyo.value(model.P_ch_rob_total[j, t])    
          
-        # Store discharge power for each (EV, Robot, Time)
-#        for (k, j) in model.rob_ev_pairs:
-#            for t in model.T:
-#                if hasattr(model.P_dch_rob[k, j, t], 'value'):
-#                    val = pyo.value(model.P_dch_rob[k, j, t])
-#                    if val > 1e-6:  # Only store non-zero values to save memory
-#                        P_dch_robf[(k, j, s, t)] = val
-                         
+                        
           
                     
         P_dch_robf.update({
@@ -402,16 +379,7 @@ while True:
         Alphaf[(s)] = pyo.value(model.Alpha)
            
          
-         
-#        for  i  in model.I:
-#            zf[(i,s)] = pyo.value(model.z[i])
-        
-        
-                
-                  
-         # Use the same predefined sparse indices
-#        for (k, j, t) in model.y_indices:
-#            P_dch_robf2[(j, t, s)] = P_dch_robf2.get((j, t, s), 0) + pyo.value(model.P_dch_rob[k, j, t])       
+ 
                 
     # Step 2: Solve global power flow
     print("\nSolving power flow subproblem...")
@@ -483,18 +451,18 @@ for s in range(1, ParkNo+1):
     EVdata_s = parking_data[parking_data['ParkingNo'] == s].reset_index(drop=True)
     Ns_val = int(Nsf[s])
     
-    # 1. Reconstruct z (which chargers are installed)
+    # Reconstruct z (which chargers are installed)
     for i in range(1, Ns_val + 1):
         zf[(i, s)] = 1.0
         
-    # 2. Reconstruct assign (arbitrary sequential mapping for plotting)
+    # Reconstruct assign (arbitrary sequential mapping for plotting)
     ev_counter = 1
     for k in model.K:
         if grid_chargef.get((k, s), 0) > 0.5:
             assignf[(k, ev_counter, s)] = 1.0
             ev_counter += 1
             
-    # 3. Reconstruct x (EV physically on charger i at time t)
+    #Reconstruct x (EV physically on charger i at time t)
     for t in model.T:
         available_chargers = list(range(1, Ns_val + 1))
         for k in model.K:
@@ -505,16 +473,7 @@ for s in range(1, ParkNo+1):
                         xf[(k, i_assign, s, t)] = 1.0
                         df_x_data.append({'EV': k, 'Charger': i_assign, 'Parking': s, 'Time': t, 'Value': 1.0})
 
-    # 4. Reconstruct y (Robot j discharging to EV k at time t)
-#    for k in model.K:
-#        for j in model.J:
-#            if assignRobotf.get((k, j, s), 0) > 0.5:
-#                for t in range(EVdata_s['AT'][k], EVdata_s['DT'][k] + 1):
-#                    val = 1.0 if P_dch_robf.get((k, j, s, t), 0) > 0.001 else 0.0
-#                    yf[(k, j, s, t)] = val
-#                    df_y_data.append({'EV': k, 'Robot': j, 'Parking': s, 'Time': t, 'Value': val})
 
-    # 5. Reconstruct x_rob and P_ch_robft (Robot j on charger i at time t)
     for t in model.T:
         # Remove chargers already used by EVs at this time to prevent visual overlap
         ev_used_chargers = set([key[1] for key in xf.keys() if len(key)==4 and key[3] == t and key[2] == s])
@@ -1188,7 +1147,7 @@ import matplotlib.patches as mpatches
 with open('pyomo_resultsMMv2.pkl', 'rb') as f:
     results = pickle.load(f)
 
-robot_id = 1
+robot_id = 6
 parking_id = 3
 
 # ============================================================================
