@@ -390,6 +390,70 @@ while True:
         break
     # Step 3: Add cuts and check convergence
     #converged = True
+ 
+    
+    # Step 3: Add cuts and check convergence
+    
+    # Scale factor to make the Master respect the voltage penalty
+    # Increase this if the Master still ignores the cuts.
+    SCALE_FACTOR = 500000 
+
+    for s, model in parking_models.items():
+        bus = parking_to_bus[s]
+        
+        # We check the voltage at the bus connected to this parking lot
+        # volt_per_node uses 0-based indexing, bus numbers are likely 1-based
+        # So we use bus-1 to index the numpy array
+        
+        for t in model.T:
+            current_volt = volt_per_node[bus-1, t-1]
+            
+            # Only add cut if there is a violation
+            if current_volt < Vmin - 1e-4:
+                
+                # 1. Retrieve the raw dual from the Power Balance constraint
+                # Note: This value is expected to be NEGATIVE due to your constraint formulation
+                pi_raw = duals_balance_p.get((bus, t), 0)
+                
+                if abs(pi_raw) < 1e-9:
+                    # Skip if dual is effectively zero
+                    continue
+                
+                # 2. CORRECT THE SIGN
+                # Because Load appears positively in your balance equation (Net + Load = 0),
+                # the dual is the negative of the true sensitivity.
+                # We flip the sign so positive Load = Positive Cost.
+                pi = -pi_raw
+                
+                # 3. Formulate the Cut
+                P_prev = P_btot_current[(s, t)]
+                
+                # Benders Cut: Alpha >= Current_Penalty + Sensitivity * (New_P - Old_P)
+                # We use (model.P_btot[t] - P_prev) so that if P_btot increases, Alpha increases.
+                
+                cut_rhs = SPobj + (pi * (model.P_btot[t] - P_prev) / sb)
+                
+                # Apply Scaling (Currency Conversion)
+                scaled_rhs = cut_rhs * SCALE_FACTOR
+                
+                # Add to model
+                # Constraint: Scaled_Estimate <= Alpha
+                model.cuts.add(scaled_rhs <= model.Alpha)
+                
+                print(f"Cut Added: Parking {s}, Bus {bus}, T={t}")
+                print(f"   Raw Dual: {pi_raw:.5f} -> Corrected Slope: {pi:.5f}")
+                print(f"   Volt: {current_volt:.4f}")
+    
+   
+
+''' 
+    
+ 
+    
+ 
+    
+ 
+
     for s, model in parking_models.items():
         bus = parking_to_bus[s]
         #has_violation = False
@@ -423,9 +487,9 @@ while True:
         break
 
 # Post-processing
-        
-
-
+       
+'''    
+    
 
 
 
