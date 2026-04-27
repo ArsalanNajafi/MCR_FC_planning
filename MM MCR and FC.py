@@ -68,8 +68,8 @@ file_path3 = os.path.join(current_directory, 'day2PublicWork.xlsx')
 df = pd.read_excel(file_path3, sheet_name='Sheet1')
 #parking_data = DataCuration(df, SampPerH, ChargerCap, ParkNo)  # Your data processing function
 #parking_data = pd.read_excel(file_path3, sheet_name='clustered2')
-parking_data = pd.read_excel(file_path3, sheet_name='clustered30min')
-###parking_data = pd.read_excel(file_path3, sheet_name='clustered30min_2')
+#parking_data = pd.read_excel(file_path3, sheet_name='clustered30min')
+parking_data = pd.read_excel(file_path3, sheet_name='clustered30min_2')
 Price = pd.read_excel(file_path, sheet_name='electricicty_price')
 Pattern = pd.read_excel(file_path, sheet_name='DemandPattern')
 Pattern = np.repeat(Pattern['Pattern'], SampPerH)
@@ -266,15 +266,13 @@ while True:
     # Step 1: Solve all parking masters
     P_btot_current = {}
     for s, model in parking_models.items():
-        gapp = 0.05
-        if s == 2:
-            gapp = 0.05
+        gapp = 0.1
         print(f"\nSolving parking {s} master...")
         solver = pyo.SolverFactory('gurobi')
         solver.options = {
-#            'Presolve': 2,          # Aggressive presolve
+            'Presolve': 2,          # Aggressive presolve
             'MIPGap': gapp,         # Accept 5% gap early
-            'Heuristics': 0.3,      # time on heuristics
+            'Heuristics': 0.8,      # time on heuristics
 #            'Cuts': 2,              # Maximum cut generation
             'NodeLimit': 500,
             'CutPasses': 10,
@@ -288,6 +286,18 @@ while True:
             #'RINS': 20              # Helps improve incumbent solutions quickly
         #    'SolutionLimit': 1      # Stop at first feasible (if applicable)
         }
+        if s == 2:
+            print("Applying Feasibility Focus for Parking 2...")
+            
+            # 1. Focus entirely on finding a FEASIBLE solution (Gap 100% fix)
+            solver.options['MIPFocus'] = 1 
+            
+            # 2. Spend up to 30 seconds just looking for a feasible integer solution 
+            # using heuristics before branching
+            solver.options['NoRelHeurTime'] = 30 
+            
+            # 3. Aggressive heuristics
+            solver.options['Heuristics'] = 1.0
         results = solver.solve(model, tee=True)
         # Store results
         for t in model.T:
@@ -396,9 +406,12 @@ while True:
     
     # Scale factor to make the Master respect the voltage penalty
     # Increase this if the Master still ignores the cuts.
-    SCALE_FACTOR = 500000 
+     
 
     for s, model in parking_models.items():
+        SCALE_FACTOR = 500
+        if s == 2:
+            SCALE_FACTOR = 100
         bus = parking_to_bus[s]
         
         # We check the voltage at the bus connected to this parking lot
@@ -852,7 +865,7 @@ plt.grid()
 # --- Per-Parking Purchased Electricity ---
 plt.subplot(2, 1, 2)
 colors = ['m', 'g', 'b', 'm', 'c']  # Different colors for each parking
-markers = ['^', '*', '+']
+markers = ['^', '*', '+', 'o']
 for s in range(1, ParkNo+1):
     P_Tot_Purch = [
         P_btot_Parkings.get((s,t), 0)  # Get from saved results
@@ -1211,7 +1224,7 @@ import matplotlib.patches as mpatches
 with open('pyomo_resultsMMv2.pkl', 'rb') as f:
     results = pickle.load(f)
 
-robot_id = 6
+robot_id = 2
 parking_id = 3
 
 # ============================================================================

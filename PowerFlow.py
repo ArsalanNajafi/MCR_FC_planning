@@ -114,14 +114,20 @@ def PowerFlow(ParkingDemand, Pattern, Price):
         # First Sum: if there is line which connect bus n to bus m "Loads from BUS n to BUS m"
         # Second Sum: if there is line from any bus m to bus n,
         # Active load as input to node n minus sum of the output load from node n and resistance of the line must be zero
-        return sum(model.P[l,t] for l in model.L for m in model.N if (l,m,n) in model.LINES) - sum(model.P[l,t]  for l in model.L for m in model.N if (l,n,m) in model.LINES) + 0.001*model.Activedemand[n, t]/sb - model.PS[n,t] == 0
+        return sum(model.P[l,t] for l in model.L for m in model.N if (l,m,n) in model.LINES) \
+            - sum(model.P[l,t]  for l in model.L for m in model.N if (l,n,m) in model.LINES)\
+                  + 0.001*model.Activedemand[n, t]/sb - model.PS[n,t] == 0
         #return sum(model.P[l,t] for l in model.L for m in model.N if (l,m,n) in model.LINES) - sum(model.P[l,t] + str_data["R"][l-1]*model.I2[l,t] for l in model.L for m in model.N if (l,n,m) in model.LINES) == 0 #- load_data['P'][n]
     model.lines_active_power_con = pyo.Constraint(model.N, model.T, rule= lines_active_power_rule)
     
     # Equation 7
     def lines_reactive_power_rule(model, n , t):
-        return sum(model.Q[l,t] for l in model.L for m in model.N if (l,m,n) in model.LINES) - sum(model.Q[l,t]  for l in model.L for m in model.N if (l,n,m) in model.LINES) + 0.001*model.Reactivedemand[n, t]/sb - model.QS[n,t] == 0
+        #return sum(model.Q[l,t] for l in model.L for m in model.N if (l,m,n) in model.LINES) - sum(model.Q[l,t]  for l in model.L for m in model.N if (l,n,m) in model.LINES) + 0.001*model.Reactivedemand[n, t]/sb - model.QS[n,t] == 0
         #return sum(model.Q[l,t] for l in model.L for m in model.N if (l,n,m) in model.LINES) - sum(model.Q[l,t] +  str_data['X'][l-1]*model.I2[l, t] for l in model.L for m in model.N if (l,n,m) in model.LINES)  == 0 #- load_data['Q'][n]
+    # NEW (CORRECT):
+        return sum(model.Q[l,t] for l in model.L for m in model.N if (l,m,n) in model.LINES) \
+            - sum(model.Q[l,t]  for l in model.L for m in model.N if (l,n,m) in model.LINES) \
+            + 0.001*model.Reactivedemand[n, t]/sb - model.QS[n,t] == 0
     model.lines_reactive_power_con = pyo.Constraint(model.N,  model.T, rule=lines_reactive_power_rule)
     
     
@@ -145,11 +151,10 @@ def PowerFlow(ParkingDemand, Pattern, Price):
         return model.QS[n,t] == 0
     model.gen_reactive_power_con = pyo.Constraint(model.N,  model.T, rule=gen_reactive_power_rule)
     
-    ##def con_rule(model, n, t):
-    ##    if n == 0:  # Apply constraint only to node 'n1'
-    ##        return model.V[n, t] == 1.05
-    ##    else:
-    ##        return pyo.Constraint.Skip  # Skip for other nodes
+    # Fix Slack Bus Voltage (Bus 0) to 1.05 p.u. for all time steps
+    def fix_slack_voltage(model, t):
+        return model.V[0, t] == 1.05
+    #model.fix_slack_con = pyo.Constraint(model.T, rule=fix_slack_voltage)
     
     ##model.con = pyo.Constraint(model.N, model.T, rule=con_rule)
     

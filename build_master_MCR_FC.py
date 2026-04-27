@@ -57,7 +57,13 @@ def build_master(s, parking_data, parking_to_bus, SampPerH, Ch_cost, robotCC, Pa
 
     model.HORIZON = SampPerH * 24
     model.nEV = len(EVdata) - 1
-    model.nMESS = 10
+    
+    if s == 2:
+        nMCR = 12
+    else:
+        nMCR = 10
+    
+    model.nMESS = nMCR
     model.RobType = 1 * len(robotCC)
     
     # NOTICE: model.I (Individual Chargers) is COMPLETELY REMOVED

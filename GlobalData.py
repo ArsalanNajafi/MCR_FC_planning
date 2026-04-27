@@ -6,7 +6,7 @@ Created on Fri May 16 11:06:36 2025
 """
 
 def GlobalData():
-    parking_to_bus = {1: 28, 2: 17, 3: 21}
+    parking_to_bus = {1: 28, 2: 17, 3: 21, 4:15}
     #parking_to_bus = {1: 28, 2: 17}
     #parking_to_bus = {1: 28}
 

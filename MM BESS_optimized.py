@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from PowerFlow import PowerFlow  # Assuming you have this module
+from PowerFlow_PyPSA import PowerFlow_PyPSA
 import pyomo.environ as pyo
 import pandas as pd
 import numpy as np
@@ -69,13 +70,14 @@ file_path         = os.path.join(current_directory, 'data.xlsx')
 
 file_path3 = os.path.join(current_directory, 'day2PublicWork.xlsx')
 df = pd.read_excel(file_path3, sheet_name='Sheet1')
-
-parking_data = pd.read_excel(file_path3, sheet_name='clustered30min')
+#parking_data = DataCuration(df, SampPerH, ChargerCap, ParkNo)  # Your data processing function
+#parking_data = pd.read_excel(file_path3, sheet_name='clustered2')
+#parking_data = pd.read_excel(file_path3, sheet_name='clustered30min')
+parking_data = pd.read_excel(file_path3, sheet_name='clustered30min_2')
 Price = pd.read_excel(file_path, sheet_name='electricicty_price')
 Pattern = pd.read_excel(file_path, sheet_name='DemandPattern')
 Pattern = np.repeat(Pattern['Pattern'], SampPerH)
 Price = np.repeat(Price['Price'], SampPerH)
- 
 
 # Initialize models for each parking
 # Ensure build_masterBESS is the function updated in the previous step
@@ -143,6 +145,11 @@ while True:
                
     # Step 2: Solve global power flow
     print("\nSolving power flow subproblem...")
+    # In your main loop, inside the iteration
+    print(f"--- Iteration {kl} Power Profile ---")
+    for t in range(1, 24*SampPerH + 1):
+        total_load_at_t = sum(P_btot_current[(s, t)] for s in range(1, ParkNo+1))
+        print(f"Time {t}: Total Grid Load = {total_load_at_t:.2f} kW")
     min_voltages, volt_per_node, duals_DevLow, duals_DevUp, duals_balance_p, duals_Dev, SPobj = PowerFlow(
         P_btot_current, np.repeat(Pattern, SampPerH), np.repeat(Price, SampPerH))
         
